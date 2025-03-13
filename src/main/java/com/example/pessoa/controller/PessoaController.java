@@ -30,17 +30,22 @@ public class PessoaController {
 
     @GetMapping("/{id}")
     public Pessoa buscarPorId(@PathVariable Long id) {
-        return pessoaRepository.findById(id).orElseThrow(() -> new RuntimeException("Pessoa não encontrada"));
+        return pessoaRepository.findById(id).orElse(null);
     }
 
     @PutMapping("/{id}")
     public Pessoa atualizarPessoa(@PathVariable Long id, @RequestBody Pessoa novaPessoa) {
-        return pessoaRepository.findById(id).map(pessoa -> {
-            pessoa.setNome(novaPessoa.getNome());
-            pessoa.setEmail(novaPessoa.getEmail());
-            pessoa.setIdade(novaPessoa.getIdade());
-            return pessoaRepository.save(pessoa);
-        }).orElseThrow(() -> new RuntimeException("Pessoa não encontrada"));
+        Pessoa pessoa = pessoaRepository.findById(id).orElse(null);
+
+        if (pessoa == null) {
+            throw new RuntimeException("Pessoa não encontrada com id: " + id);
+        }
+
+        pessoa.setNome(novaPessoa.getNome());
+        pessoa.setEmail(novaPessoa.getEmail());
+        pessoa.setIdade(novaPessoa.getIdade());
+
+        return pessoaRepository.save(pessoa);
     }
 
     @DeleteMapping("/{id}")
